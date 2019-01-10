@@ -1,8 +1,7 @@
 import pandas as pd
 
-input_file = "data_CNA.txt"
 
-def read_data(input_file = "data_CNA.txt"):
+def read_cna_data(input_file = "data_CNA.txt"):
 	data = pd.read_csv(input_file, sep='\t')
 
 	cna_data = data.select_dtypes(['number']).dropna(axis=1)
@@ -18,3 +17,14 @@ def read_data(input_file = "data_CNA.txt"):
 	print(cna_data_test.shape)
 	return cna_data_train, cna_data_test
 
+
+def read_patient_data(input_file = "data_clinical_patient.txt"):
+	data_frame = pd.read_csv(input_file, sep='\t')
+
+	df = data_frame[['#Patient Identifier','Overall Survival Status']]
+	df = df.select_dtypes(['number']).dropna(axis=1)
+
+	print(df)
+	return df
+
+read_patient_data()

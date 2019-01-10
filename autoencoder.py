@@ -21,9 +21,9 @@ class autoencoder(nn.Module):
 			)
 
 	def forward(self, x):
-		print("input is ", x)
-		x = self.encoder(x)
-		print("encoded is ", x)
-		x = self.decoder(x)
-		return x
+		#print("input is ", x)
+		encoded = self.encoder(x)
+		#print("encoded is ", x)
+		decoded = self.decoder(encoded)
+		return decoded, encoded
 
