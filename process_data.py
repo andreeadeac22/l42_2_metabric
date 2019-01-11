@@ -35,5 +35,5 @@ def read_patient_data(input_file = "data_clinical_patient.txt"):
 def intersect():
 	cna_data_train, cna_data_test = read_cna_data()
 	patient_data = read_patient_data()
-	
+
 	return data

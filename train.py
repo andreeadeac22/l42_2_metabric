@@ -4,51 +4,50 @@ from torch import nn
 from torch.utils.data import DataLoader
 from torch.autograd import Variable
 import matplotlib.pyplot as plt
+import numpy as np
+from sklearn.manifold import TSNE
+
 
 from process_data import *
 from autoencoder import *
 from constants import *
 
 from sklearn.decomposition import PCA
-
+from sklearn.cluster import KMeans
 
 
 def shuffle(data):
 	#TODO: implement
 	return data
 
-def vis_pca(data):
+def vis_pca(data, labels):
 	pca = PCA(n_components=2)
 	principalComponents = pca.fit_transform(data)
 	print(pca.components_)
 	print(pca.explained_variance_)
 	# c = digit.targets in scatter
 	# cmap=plt.cm.get_cmap('spectral', 10)
-	plt.scatter(principalComponents[:, 0], principalComponents[:, 1], edgecolor='none', alpha=0.5)
+	plt.scatter(principalComponents[:, 0], principalComponents[:, 1], c= labels, edgecolor='none', alpha=0.5)
 	plt.xlabel('component 1')
 	plt.ylabel('component 2')
 	#plt.colorbar();
-	plt.show()
+	fig = plt.figure()
+	fig.savefig('pca.png', dpi=fig.dpi)
 
-	"""""
-	principalDf = pd.DataFrame(data=principalComponents, columns=['principal component 1', 'principal component 2'])
-	finalDf = pd.concat([principalDf, df[['target']]], axis=1)
-	fig = plt.figure(figsize=(8, 8))
-	ax = fig.add_subplot(1, 1, 1)
-	ax.set_xlabel('Principal Component 1', fontsize=15)
-	ax.set_ylabel('Principal Component 2', fontsize=15)
-	ax.set_title('2 component PCA', fontsize=20)
-	targets = ['Iris-setosa', 'Iris-versicolor', 'Iris-virginica']
-	colors = ['r', 'g', 'b']
-	for target, color in zip(targets, colors):
-		indicesToKeep = finalDf['target'] == target
-		ax.scatter(finalDf.loc[indicesToKeep, 'principal component 1']
-		           , finalDf.loc[indicesToKeep, 'principal component 2']
-		           , c=color
-		           , s=50)
-	ax.legend(targets)
-	ax.grid()
-	"""
+
+def vis_tsne(data, labels):
+	data_embedded = TSNE(n_components=2).fit_transform(data)
+	plt.scatter(data_embedded[:, 0], data_embedded[:, 1], c= labels, edgecolor='none', alpha=0.5)
+	fig = plt.figure()
+	fig.savefig('tsne.png', dpi=fig.dpi)
+
+
+def kmeans(data):
+	kmeans = KMeans(n_clusters=10, random_state=0).fit(data)
+	y_kmeans = kmeans.predict(data)
+	vis_pca(data, y_kmeans)
+	vis_tsne(data, y_kmeans)
+
 
 def main():
 
@@ -92,7 +91,8 @@ def main():
 	loss = criterion(data_test, output_test)
 	print('test loss ', loss.data)
 
-	vis_pca(encoded_test.detach().numpy())
+	#vis_pca(encoded_test.detach().numpy())
+	kmeans(encoded_test.detach().numpy())
 
 
 if __name__ == '__main__':
