@@ -6,6 +6,7 @@ from torch.autograd import Variable
 import matplotlib.pyplot as plt
 import numpy as np
 from sklearn.manifold import TSNE
+from sklearn.metrics.cluster import adjusted_rand_score
 
 
 from process_data import *
@@ -23,30 +24,28 @@ def shuffle(data):
 def vis_pca(data, labels):
 	pca = PCA(n_components=2)
 	principalComponents = pca.fit_transform(data)
-	print(pca.components_)
-	print(pca.explained_variance_)
-	# c = digit.targets in scatter
-	# cmap=plt.cm.get_cmap('spectral', 10)
-	plt.scatter(principalComponents[:, 0], principalComponents[:, 1], c= labels, edgecolor='none', alpha=0.5)
+	plt.scatter(principalComponents[:, 0], principalComponents[:, 1], c=labels, edgecolor='none', alpha=0.5)
 	plt.xlabel('component 1')
 	plt.ylabel('component 2')
-	#plt.colorbar();
-	fig = plt.figure()
-	fig.savefig('pca.png', dpi=fig.dpi)
+	plt.savefig('pca.png')
 
 
 def vis_tsne(data, labels):
 	data_embedded = TSNE(n_components=2).fit_transform(data)
-	plt.scatter(data_embedded[:, 0], data_embedded[:, 1], c= labels, edgecolor='none', alpha=0.5)
-	fig = plt.figure()
-	fig.savefig('tsne.png', dpi=fig.dpi)
+	plt.scatter(data_embedded[:, 0], data_embedded[:, 1], c=labels, edgecolor='none', alpha=0.5)
+	plt.savefig('tsne.png')
 
 
-def kmeans(data):
+def cluster_kmeans(data):
 	kmeans = KMeans(n_clusters=10, random_state=0).fit(data)
+
 	y_kmeans = kmeans.predict(data)
+	_, counts = np.unique(kmeans.labels_, return_counts=True)
+	print(counts)
+
 	vis_pca(data, y_kmeans)
 	vis_tsne(data, y_kmeans)
+	return kmeans
 
 
 def main():
@@ -92,7 +91,10 @@ def main():
 	print('test loss ', loss.data)
 
 	#vis_pca(encoded_test.detach().numpy())
-	kmeans(encoded_test.detach().numpy())
+	kmeans = cluster_kmeans(encoded_test.detach().numpy())
+
+	print(adjusted_rand_score(kmeans.labels_, patient_data['INTCLUST'].values))
+
 
 
 if __name__ == '__main__':
